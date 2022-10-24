@@ -1,5 +1,6 @@
 package com.Flapkap.VendingMachine.business.user.service.impl;
 
+import com.Flapkap.VendingMachine.business.user.service.UserMapper;
 import com.Flapkap.VendingMachine.exception.BadRequestException;
 import com.Flapkap.VendingMachine.exception.auth.ExpiredRefreshTokenException;
 import com.Flapkap.VendingMachine.exception.auth.RefreshTokenNotFoundException;
@@ -48,7 +49,6 @@ public class AuthServiceImpl implements AuthService {
         this.jwtUtils = jwtUtils;
         this.authenticationManager = authenticationManager;
     }
-
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -84,12 +84,12 @@ public class AuthServiceImpl implements AuthService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetailsDto userDetails = (UserDetailsDto) authentication.getPrincipal();
         String authToken = jwtUtils.generateJwtToken(authentication);
-
         User user = new User(userDetails.getId());
         refreshTokenRepo.deleteByUserAndExpiryDateBefore(user, LocalDateTime.now());
         RefreshToken refreshToken = getRefreshToken(user);
         return new LoginDto(userDetails.getId(), userDetails.getUsername(), userDetails.getRole().toString(), authToken, refreshToken.getToken());
     }
+
     private RefreshToken getRefreshToken(User user) {
         List<RefreshToken> refreshTokens = refreshTokenRepo.findByUser(user);
         if (refreshTokens.size() > 0) {

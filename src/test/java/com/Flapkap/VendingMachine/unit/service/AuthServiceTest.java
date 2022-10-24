@@ -1,4 +1,4 @@
-package com.Flapkap.VendingMachine.auth;
+package com.Flapkap.VendingMachine.unit.service;
 
 import com.Flapkap.VendingMachine.business.user.dto.ResponseWithLongId;
 import com.Flapkap.VendingMachine.business.user.dto.request.StoreUserRequest;
@@ -18,16 +18,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 @ExtendWith(MockitoExtension.class)
-public class AuthRegisterTests {
-
+public class AuthServiceTest {
     @Mock
     private UserRepository userRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
     @InjectMocks
-    private AuthServiceImpl authServiceImpl;
+    private AuthServiceImpl authService;
 
     @BeforeEach
     public void setup() {
@@ -35,23 +33,25 @@ public class AuthRegisterTests {
     }
 
     @Test
-    public void ValidRegisterUser() {
-        User entity=new User();
-        entity.setId(99L);
-        entity.setUserName("sa3d01");
-        entity.setPassword("123456");
-        entity.setRole(Role.BUYER);
+    public void whenSaveUser_shouldReturnId() {
+        User user=new User();
+        user.setId(99L);
+        user.setUserName("sa3d01");
+        user.setPassword("123456");
+        user.setRole(Role.BUYER);
 
-        Mockito.when(userRepository.findByUserName(entity.getUserName())).thenReturn(Optional.empty());
-        Mockito.when(passwordEncoder.encode(entity.getPassword())).thenReturn("123456-dqdq-2342332c-fwrf");
-        Mockito.when(userRepository.save(any())).thenReturn(entity);
+        Mockito.when(userRepository.findByUserName(user.getUserName())).thenReturn(Optional.empty());
+        Mockito.when(passwordEncoder.encode(user.getPassword())).thenReturn("123456-dqdq-2342332c-fwrf");
+        Mockito.when(userRepository.save(any(User.class))).thenReturn(user);
+
 
         StoreUserRequest request=new StoreUserRequest();
         request.setUserName("sa3d01");
         request.setPassword("123456");
         request.setRole("BUYER");
 
-        ResponseWithLongId res=authServiceImpl.register(request);
-        assertNotNull(res);
+        ResponseWithLongId res = authService.register(request);
+
+        assertNotNull(res.getId());
     }
 }

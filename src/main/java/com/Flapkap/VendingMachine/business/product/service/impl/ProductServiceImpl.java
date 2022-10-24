@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -69,7 +70,7 @@ public class ProductServiceImpl implements ProductService {
     public void updateProduct(Long id, UpdateProductRequest request) {
         Product entity = productRepo.findById(id).orElseThrow(ProductNotFoundException::new);
         TokenUser tokenUser = SecurityUtils.getTokenUser();
-        if (tokenUser.getId()!= entity.getId()){
+        if (!Objects.equals(tokenUser.getId(), entity.getSeller().getId())){
             throw new ForbiddenException();
         }
         entity.setProductName(request.getProductName());
@@ -84,7 +85,7 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProduct(Long id) {
         Product entity=productRepo.findById(id).orElseThrow(ProductNotFoundException::new);
         TokenUser tokenUser = SecurityUtils.getTokenUser();
-        if (tokenUser.getId()!= entity.getId()){
+        if (!Objects.equals(tokenUser.getId(), entity.getSeller().getId())){
             throw new ForbiddenException();
         }
         productRepo.deleteById(id);
